@@ -1,0 +1,113 @@
+sub{
+    font-size: 15px;
+    text-align:end;
+    float: right;
+}
+.number{
+    text-align: start;
+    float: left;
+}
+.white-color{
+    color:#fff ;
+}
+.black-color{
+    color: #999;
+}
+.screen{
+    width: 1290px;
+    height: 740px;
+    margin: auto;
+}
+#play_here{
+    float: left;
+    width: 690px;
+}
+h1{
+    float: left;
+    text-align: center;
+    width: 690px;
+    height: 100px;
+}
+.board{
+    width: 640px;
+    height: 640px;
+    float: left;
+    margin: auto;
+    border: 25px solid #333;
+}
+.black{
+    float: left;
+    width: 70px;
+    height: 70px;
+    background-color: #999;
+    font-size: 50px;
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+    cursor: default;
+    border: 5px solid;
+    border-color: #999;
+}
+.white{
+    float: left;
+    width: 70px;
+    height: 70px;
+    background-color: #fff;
+    font-size: 50px;
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+    cursor: default;
+    border: 5px solid ;
+    border-color: #fff;
+}
+.grave{
+    width: 300px;
+    height: 690px;
+    margin-top: 143px;
+    float: left;
+}
+.death_count{
+    float: right;
+    font-size: 20px;
+}
+.death_value{
+    float: left;
+    font-size: 50px;
+}
+
+.overlay{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    transition: opacity 500ms;
+    visibility: hidden;
+    opacity: 0;
+}
+.popup {
+    margin: 70px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 5px;
+    width: 30%;
+    position: relative;
+    transition: all 5s ease-in-out;
+    font-size: 50px;
+}
+.Pieces{
+    margin: auto;
+    height: 80px;
+}
+.black_pop{
+    margin: 10px;
+    cursor: pointer;
+    float: left;
+}
+.white_pop{
+    margin: 10px;
+    cursor: pointer;
+    float: left;
+}
