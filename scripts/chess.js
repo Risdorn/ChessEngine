@@ -93,24 +93,70 @@ function show_valid_path(event){
     }
 }
 function find_legal(piece_pos){
-    let piece = board[piece_pos];
     piece_pos = parseInt(piece_pos);
+    let piece = board[piece_pos];
     console.log(piece, piece_pos);
-    legal = [];
+    let king = 0;
+    let legal = [];
+    let final = [];
+    let result = [];
+    let attack = [];
     if(piece == 40 | piece == 70 | piece == 39 | piece == 69){
-        return get_rook_move(piece_pos);
+        legal =  get_rook_move(piece_pos);
     }else if(piece == 41 | piece == 71){
-        return get_horse_move(piece_pos);
+        legal = get_horse_move(piece_pos);
     }else if(piece == 42 | piece == 72){
-        return get_bishop_move(piece_pos);
+        legal = get_bishop_move(piece_pos);
     }else if(piece == 43 | piece == 73){
-        return get_queen_move(piece_pos);
+        legal = get_queen_move(piece_pos);
     }else if(piece == 44 | piece == 74 | piece == 45 | piece == 75){
-        return get_king_move(piece_pos);
+        legal = get_king_move(piece_pos);
     }else if(piece > 50){
-        return get_pawn_move(piece_pos);
+        legal = get_pawn_move(piece_pos);
     }
-    return legal;
+    for(move of legal){
+        if(board[move] != 44 & board[move]!= 45 &board[move] != 74 & board[move] != 75){
+            final.push(move);
+        }
+    }
+    legal = [...final];
+    if(piece > 55){
+        king = king_pos[1];
+    }
+    else{
+        king = king_pos[0];
+    }
+    result = check(king, board[king]);
+    attack = result[1];
+    result = result[0];
+    final = [];
+    if(piece != 44 & piece != 45 & piece != 74 & piece != 75 & attack.length == 1){
+        result.push(...attack);
+        for(let i of result){
+            for(let j of legal){
+                if(i == j){
+                    final.push(j);
+                }
+            }
+        }
+    }else {
+        for(let i of legal){
+            let temp = board[i];
+            board[i] = piece;
+            board[piece_pos] = -1;
+            if(piece == 74 | piece == 75 | piece == 44 | piece == 45){
+                result = check(i, board[i])
+            }else{
+                result = check(king, board[king]);
+            }
+            if(result[0].length + result[1].length == 0){
+                final.push(i);
+            }
+            board[piece_pos] = piece;
+            board[i] = temp;
+        }
+    }
+    return final;
 }
 function get_horse_move(piece_pos){
     let piece = board[piece_pos];
@@ -139,43 +185,43 @@ function get_rook_move(piece_pos){
     let legal = [];
     let pos = piece_pos % 8;
     let i = 0;
-        for(i = piece_pos + 1; i < piece_pos + 8 - pos; i += 1){
-            if(board[i] != -1){
-                break;
+            for(i = piece_pos + 1; i%8 > pos; i += 1){
+                if(board[i] != -1){
+                    break;
+                }
+                legal.push(i);
             }
-            legal.push(i);
-        }
-        if((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55)){
-            legal.push(i);
-        }
-        for(i = piece_pos - 1; i > piece_pos - pos - 1; i -= 1){
-            if(board[i] != -1){
-                break;
+            if((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55 & board[i] > -1)){
+                legal.push(i);
             }
-            legal.push(i);
-        }
-        if((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55)){
-            legal.push(i);
-        }
-        for(i = piece_pos + 8; i < 56 + pos; i += 8){
-            if(board[i] != -1){
-                break;
+            for(i = piece_pos - 1; i%8 < pos; i -= 1){
+                if(board[i] != -1){
+                    break;
+                }
+                legal.push(i);
             }
-            legal.push(i);
-        }
-        if((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55)){
-            legal.push(i);
-        } 
-        for(i = piece_pos - 8; i > pos; i -= 8){
-            if(board[i] != -1){
-                break;
+            if((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55 & board[i] > -1)){
+                legal.push(i);
             }
-            legal.push(i);
-        }
-        if((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55)){
-            legal.push(i);
-        }
-        return legal;    
+            for(i = piece_pos + 8; i%8 == pos & i < 64; i += 8){
+                if(board[i] != -1){
+                    break;
+                }
+                legal.push(i);
+            }
+            if((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55 & board[i] > -1)){
+                legal.push(i);
+            } 
+            for(i = piece_pos - 8; i%8 == pos & i > -1; i -= 8){
+                if(board[i] != -1){
+                    break;
+                }
+                legal.push(i);
+            }
+            if((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55 & board[i] > -1)){
+                legal.push(i);
+            }
+            return legal;    
 }
 function get_bishop_move(piece_pos){
     let piece = board[piece_pos];
@@ -188,7 +234,7 @@ function get_bishop_move(piece_pos){
             }
             legal.push(i);
         }
-        if(((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55)) & (i%8 > pos)){
+        if(((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55 & board[i] > -1)) & (i%8 > pos)){
             legal.push(i);
         }
         for(i = piece_pos - 1 + 8; i%8 < pos; i += 7){
@@ -197,7 +243,7 @@ function get_bishop_move(piece_pos){
             }
             legal.push(i);
         }
-        if(((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55)) & i%8 < pos){
+        if(((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55 & board[i] > -1)) & i%8 < pos){
             legal.push(i);
         }
         for(i = piece_pos + 1 - 8; i%8 > pos; i -= 7){
@@ -206,7 +252,7 @@ function get_bishop_move(piece_pos){
             }
             legal.push(i);
         }
-        if(((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55)) & i%8 > pos){
+        if(((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55 & board[i] > -1)) & i%8 > pos){
             legal.push(i);
         }    
         for(i = piece_pos - 1 - 8; i%8 < pos; i -= 9){
@@ -215,7 +261,7 @@ function get_bishop_move(piece_pos){
             }
             legal.push(i);
         }
-        if(((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55)) & i%8 < pos){
+        if(((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55 & board[i] > -1)) & i%8 < pos){
             legal.push(i);
         }
         return legal;
@@ -241,7 +287,7 @@ function get_king_move(piece_pos){
     moves.push(piece_pos - 7);
     for(let move of moves){
         if(move > -1 & move < 64 & ((piece_pos < move & move % 8 >= pos) | (piece_pos > move & move % 8 <= pos))){
-            if(board[move] == -1 | (board[move] > 55 & piece < 55) | (board[move] < 55 & piece > 55)){
+            if(board[move] == -1 | (board[move] > 55 & piece < 55) | (board[move] < 55 & piece > 55 & board[move] > -1)){
                     legal.push(move);
             }
         }
@@ -304,79 +350,242 @@ function get_pawn_move(piece_pos){
     }
     return legal;
 }
-function find_rook_type_attack(piece_pos){
-    let piece = board[piece_pos];
+function find_rook_type_attack(piece_pos, piece){
+    let pos = piece_pos%8;
+    let result = [];
+    let final = [];
     let attack = [];
-    let pos = piece_pos % 8;
+    let bad = 0;
     let i = 0;
-        for(i = piece_pos + 1; i < piece_pos + 8 - pos; i += 1){
-            if(board[i] != -1 & (piece < 55 & board[i] > 55)){
+    for(i = piece_pos + 1; i%8 > pos; i += 1){
+        if(board[i] != -1){
+            bad = board[i];
+            if((piece < 55 & (bad == 69 | bad == 70 | bad == 73)) | (piece > 55 & (bad == 39 | bad == 40 | bad == 43))){
+                final.push(...result);
                 attack.push(i);
-            }else if(board[i] != -1){
-                break;
             }
+            result = [];
+            break;
         }
-        for(i = piece_pos - 1; i > piece_pos - pos - 1; i -= 1){
-            if(board[i] != -1 & (piece < 55 & board[i] > 55)){
+        result.push(i);
+    }
+    for(i = piece_pos - 1; i%8 < pos; i -= 1){
+        if(board[i] != -1){
+            bad = board[i];
+            if((piece < 55 & (bad == 69 | bad == 70 | bad == 73)) | (piece > 55 & (bad == 39 | bad == 40 | bad == 43))){
+                final.push(...result);
                 attack.push(i);
-            }else if(board[i] != -1){
-                break;
             }
+            result = [];
+            break;
         }
-        for(i = piece_pos + 8; i < 56 + pos; i += 8){
-            if(board[i] != -1 & (piece < 55 & board[i] > 55)){
+        result.push(i);
+    }
+    for(i = piece_pos + 8; i%8 == pos & i < 64; i += 8){
+        if(board[i] != -1){
+            bad = board[i];
+            if((piece < 55 & (bad == 69 | bad == 70 | bad == 73)) | (piece > 55 & (bad == 39 | bad == 40 | bad == 43))){
+                final.push(...result);
                 attack.push(i);
-            }else if(board[i] != -1){
-                break;
             }
+            result = [];
+            break;
         }
-        for(i = piece_pos - 8; i > pos; i -= 8){
-            if(board[i] != -1 & (piece < 55 & board[i] > 55)){
+        result.push(i);
+    }
+    for(i = piece_pos - 8; i%8 == pos & i > -1; i -= 8){
+        if(board[i] != -1){
+            bad = board[i];
+            if((piece < 55 & (bad == 69 | bad == 70 | bad == 73)) | (piece > 55 & (bad == 39 | bad == 40 | bad == 43))){
+                final.push(...result);
                 attack.push(i);
-            }else if(board[i] != -1){
-                break;
             }
+            break;
         }
-        return attack;   
+        result.push(i);
+    }
+    return [final, attack];
 }
-function find_bishop_type_attack(piece_pos){
-    let piece = board[piece_pos];
+function find_bishop_type_attack(piece_pos, piece){
+    let pos = piece_pos%8;
+    let result = [];
+    let final = [];
     let attack = [];
-    let pos = piece_pos % 8;
+    let bad = 0;
     let i = 0;
-        for(i = piece_pos + 1 + 8; i%8 > pos; i += 9){
-            if(board[i] != -1 & (piece < 55 & board[i] > 55)){
+    for(i = piece_pos - 9; i%8 < pos & i > -1; i -= 9){
+        if(board[i] != -1){
+            bad = board[i];
+            if((piece < 55 & (bad == 72 | bad == 73)) | (piece > 55 & (bad == 42 | bad == 43))){
+                final.push(...result);
                 attack.push(i);
-            }else if(board[i] != -1){
-                break;
             }
+            result = [];
+            break;
         }
-        for(i = piece_pos - 1 + 8; i%8 < pos; i += 7){
-            if(board[i] != -1 & (piece < 55 & board[i] > 55)){
+        result.push(i);
+    }
+    for(i = piece_pos - 7; i%8 > pos & i > -1; i -= 7){
+        if(board[i] != -1){
+            bad = board[i];
+            if((piece < 55 & (bad == 72 | bad == 73)) | (piece > 55 & (bad == 42 | bad == 43))){
+                final.push(...result);
                 attack.push(i);
-            }else if(board[i] != -1){
-                break;
             }
+            result = [];
+            break;
         }
-        for(i = piece_pos + 1 - 8; i%8 > pos; i -= 7){
-            if(board[i] != -1 & (piece < 55 & board[i] > 55)){
+        result.push(i);
+    }
+    for(i = piece_pos+ 7; i%8 < pos & i < 64; i += 7){
+        if(board[i] != -1){
+            bad = board[i];
+            if((piece < 55 & (bad == 72 | bad == 73)) | (piece > 55 & (bad == 42 | bad == 43))){
+                final.push(...result);
                 attack.push(i);
-            }else if(board[i] != -1){
-                break;
             }
+            result = [];
+            break;
         }
-        for(i = piece_pos - 1 - 8; i%8 < pos; i -= 9){
-            if(board[i] != -1 & (piece < 55 & board[i] > 55)){
+        result.push(i);
+    }
+    for(i = piece_pos + 9; i%8 > pos & i < 64; i += 9){
+        if(board[i] != -1){
+            bad = board[i];
+            if((piece < 55 & (bad == 72 | bad == 73)) | (piece > 55 & (bad == 42 | bad == 43))){
+                final.push(...result);
                 attack.push(i);
-            }else if(board[i] != -1){
-                break;
             }
+            break;
         }
-        return legal;
+        result.push(i);
+    }
+    return [final, attack];
 }
-function check(piece_pos){
-    attack = [...find_rook_type_attack(piece_pos)];
+function find_pawn_type_attack(piece_pos, piece){
+    let final = [];
+    let attack = [];
+    let bad = 0;
+    if(piece > 55){
+        bad = board[piece_pos - 7];
+        if(bad == 51 | bad == 52 | bad == 53 | bad == 42 | bad == 43){
+            attack.push(piece_pos - 7);
+        }
+        bad = board[piece_pos - 9];
+        if(bad == 51 | bad == 52 | bad == 53 | bad == 42 | bad == 43){
+            attack.push(piece_pos - 9);
+        }
+    }else{
+        bad = board[piece_pos + 7];
+        if(bad == 61 | bad == 62 | bad == 63 | bad == 72 | bad == 73){
+            attack.push(piece_pos + 7);
+        }
+        bad = board[piece_pos + 9];
+        if(bad == 61 | bad == 62 | bad == 63 | bad == 72 | bad == 73){
+            attack.push(piece_pos + 9);
+        }
+    }
+    return [final, attack];
 }
+function find_horse_type_attack(piece_pos, piece){
+    let moves = [];
+    let final = [];
+    let attack = [];
+    moves.push(piece_pos + 16 + 1);
+    moves.push(piece_pos + 16 - 1);
+    moves.push(piece_pos - 16 + 1);
+    moves.push(piece_pos - 16 - 1);
+    moves.push(piece_pos + 2 + 8);
+    moves.push(piece_pos + 2 - 8);
+    moves.push(piece_pos - 2 + 8);
+    moves.push(piece_pos - 2 - 8);
+    for(let move of moves){
+        if(board[move] != -1){
+            if((piece > 55 & board[move] == 41) | (piece < 55 & board[move] == 71)){
+                attack.push(move);
+            }
+        }
+    }
+    return [final, attack];
+}
+function check(piece_pos, piece){
+    let result = [];
+    let attack = [];
+    let temp = find_pawn_type_attack(piece_pos, piece);
+    result.push(...temp[0]);
+    attack.push(...temp[1]);
+    temp = find_horse_type_attack(piece_pos, piece);
+    for(let i of temp[0]){
+        let flag = true;
+        for(let j of result){
+            if(j == i){
+                flag = false;
+            }
+        }
+        if(flag){
+            result.push(i);
+        }
+    }
+    for(let i of temp[1]){
+        let flag = true;
+        for(let j of result){
+            if(j == i){
+                flag = false;
+            }
+        }
+        if(flag){
+            attack.push(i);
+        }
+    }
+    temp = find_bishop_type_attack(piece_pos, piece);
+    for(let i of temp[0]){
+        let flag = true;
+        for(let j of result){
+            if(j == i){
+                flag = false;
+            }
+        }
+        if(flag){
+            result.push(i);
+        }
+    }
+    for(let i of temp[1]){
+        let flag = true;
+        for(let j of result){
+            if(j == i){
+                flag = false;
+            }
+        }
+        if(flag){
+            attack.push(i);
+        }
+    }
+    temp = find_rook_type_attack(piece_pos, piece);
+    for(let i of temp[0]){
+        let flag = true;
+        for(let j of result){
+            if(j == i){
+                flag = false;
+            }
+        }
+        if(flag){
+            result.push(i);
+        }
+    }
+    for(let i of temp[1]){
+        let flag = true;
+        for(let j of result){
+            if(j == i){
+                flag = false;
+            }
+        }
+        if(flag){
+            attack.push(i);
+        }
+    }
+    return [result, attack];
+}
+
 function promotion(event){
     let element = event.target;
     let popup = element.classList[0];
@@ -399,6 +608,7 @@ function move_piece(event){
     let piece_pos = element.classList;
     piece_pos = parseInt(piece_pos[piece_pos.length - 1]);
     let legal_moves = find_legal(piece_pos);
+    console.log("Before Loop");
     for(let move of legal_moves){
         let parent = document.getElementById(move);
         parent.removeEventListener("click", move_piece);
@@ -440,22 +650,31 @@ function move_piece(event){
     }
     if(board[position] != -1){
         let value = document.getElementById(position).innerHTML[0];
-        let child1 = document.createElement("div");
-        let grave = "parent";
-        child1.innerHTML = value;
-        child1.classList.add("death_value");
-        let child2 = document.createElement("sub");
-        child2.classList.add("death_count");
-        child2.id = "death_count";
-        child2.innerHTML = "x1";
-        child2.style.color = "#999";
-        if(board[position] > 55){
-            grave = document.getElementById("white_grave");
+        let trial = document.getElementById(value);
+        if(trial == null){
+            let child1 = document.createElement("div");
+            let grave = "parent";
+            child1.innerHTML = value;
+            child1.classList.add("death_value");
+            child1.id = value;
+            let child2 = document.createElement("sub");
+            child2.classList.add("death_count");
+            child2.id = "death_count";
+            child2.innerHTML = "x1";
+            child2.style.color = "#999";
+            if(board[position] > 55){
+                grave = document.getElementById("white_grave");
+            }else{
+                grave = document.getElementById("black_grave");
+            }
+            child1.appendChild(child2);
+            grave.appendChild(child1);
         }else{
-            grave = document.getElementById("black_grave");
+            let child2 = trial.lastChild;
+            let death_count = parseInt(child2.innerHTML[1]);
+            death_count += 1;
+            child2.innerHTML = "x" + death_count;
         }
-        child1.appendChild(child2);
-        grave.appendChild(child1);
     }
     piece = document.getElementById(piece_pos);
     element = document.getElementById(position);
@@ -471,7 +690,7 @@ function move_piece(event){
     piece.style.cursor = "default";
     board[position] = board[piece_pos];
     board[piece_pos] = -1;
-    if(Math.abs(piece_pos - position) > 1 & (board[position] == 45 | board[position] == 75)){
+    if(Math.abs(piece_pos%8 - position%8) > 1 & (board[position] == 45 | board[position] == 75)){
         if(piece_pos < position){
             board[position - 1] = board[piece_pos + 3] + 1;
             board[piece_pos + 3] = -1;
@@ -494,9 +713,6 @@ function move_piece(event){
         piece.removeEventListener("click", show_valid_path);
         piece.style.cursor = "default";
     }
-    control = 1 - control;
-    let turn = control ? "Black Plays" : "White Plays";
-    document.getElementById("turn").innerHTML = turn;
     if(board[position] == 53 | board[position] == 63){
         let popup = ""
         let flag = false;
@@ -513,6 +729,27 @@ function move_piece(event){
             popup.classList.add(position);
         }
     }
+    if(board[position] == 45){
+        king_pos[0] = position;
+    }else if(board[position] == 75){
+        king_pos[1] = position;
+    }
+    if(board[position] > 55){
+        let result = check(king_pos[0]);
+        if(result[0].length + result[1].length > 0){
+            let legal = find_legal(king_pos[0]);
+            if(legal.length == 0){
+                for(let i = 0; i < 64; i += 1){
+                    if(board[i] < 55 & i != 45 & i != 44){
+                        legal = find_legal(i);
+                    }
+                }
+            }
+        }
+    }
+    control = 1 - control;
+    let turn = control ? "Black Plays" : "White Plays";
+    document.getElementById("turn").innerHTML = turn;
 }
 function remove_moves(){
     for(let i = 0; i < 64; i += 1){
@@ -522,7 +759,9 @@ function remove_moves(){
             let piece_pos = class_list[class_list.length - 1]
             parent.classList.remove(piece_pos);
             parent.removeEventListener("click", move_piece);
-            parent.style.cursor = "default";
+            if(board[i] == -1){
+                parent.style.cursor = "default";
+            }
             if(class_list[0] == "white"){
                 parent.style.borderColor = "#fff";
             }else{
@@ -534,6 +773,7 @@ function remove_moves(){
 let piece_info = { 39: "Black Rook", 40: "Black Rook", 41: "Black_Horse", 42: "Black_Bishop", 43: "Black_Queen", 44: "Black_King", 45: "Black_King", 51: "Black_Pawn", 52: "Black_Pawn", 53: "Black_Pawn",
 69: "White_Rook", 70: "White_Rook", 71: "White_Horse", 72: "White_Bishop", 73: "White_Queen", 74: "White_King", 75: "White_King", 61: "White_Pawn", 62: "White_Pawn", 63:"White_Pawn"};
 let board = restart();
+let king_pos = [4, 60]
 control = 0;
 document.getElementById("turn").innerHTML = "White Plays";
 last_clicked = -1;
