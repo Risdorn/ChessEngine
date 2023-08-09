@@ -1,45 +1,61 @@
 function restart() {
     let board = Array(64).fill(-1);
-    board[0] = 39;
-    board[1] = 41;
-    board[2] = 42;
-    board[3] = 43;
-    board[4] = 44;
-    board[5] = 42;
-    board[6] = 41;
-    board[7] = 39;
-    board[8] = 51;
-    board[9] = 51;
-    board[10] = 51;
-    board[11] = 51;
-    board[12] = 51;
-    board[13] = 51;
-    board[14] = 51;
-    board[15] = 51;
-
-    board[56] = 69;
-    board[57] = 71;
-    board[58] = 72;
-    board[59] = 73;
-    board[60] = 74;
-    board[61] = 72;
-    board[62] = 71;
-    board[63] = 69;
-    board[48] = 61;
-    board[49] = 61;
-    board[50] = 61;
-    board[51] = 61;
-    board[52] = 61;
-    board[53] = 61;
-    board[54] = 61;
-    board[55] = 61;
-    for(let i = 0; i < 16; i += 1){
-        let black = document.getElementById(i);
-        let white = document.getElementById(i+48);
-        black.style.cursor = "pointer";
-        white.style.cursor = "pointer";
-        black.addEventListener("click", show_valid_path);
-        white.addEventListener("click", show_valid_path);
+    let black_pieces = [39, 41, 42, 43, 44, 42, 41, 39, 51];
+    let white_pieces = [69, 71, 72, 73, 74, 72, 71, 69, 61];
+    let black_text = ["&#9820;","&#9822;","&#9821;","&#9819;","&#9818;","&#9821;","&#9822;", "&#9820;","&#9823;"];
+    let white_text = ["&#9814;","&#9816;","&#9815;","&#9813;","&#9812;","&#9815;","&#9816;", "&#9814;", "&#9817;"];
+    control = 0;
+    king_pos = [4, 60];
+    document.getElementById("turn").innerHTML = "White Plays";
+    last_clicked = -1;
+    document.getElementById("white_grave").innerHTML = "";
+    document.getElementById("black_grave").innerHTML = "";
+    document.getElementById("checkmate").innerHTML = "";
+    for(let i = 0; i < 48; i += 1){
+        if(i < 16){
+            let black = document.getElementById(i);
+            let white = document.getElementById(i+48);
+            let text1 = black.innerHTML;
+            let text2 = white.innerHTML;
+            if(i < 8){
+                board[i] = black_pieces[i];
+                board[i+56] = white_pieces[i];
+                if(text1.length > 0 & text1[0] != "<"){
+                    black.innerHTML = black.innerHTML.replace(text1[0], black_text[i]);
+                }else{
+                    black.innerHTML = black_text[i] + black.innerHTML;
+                }
+                if(text2.length > 0 & text2[0] != "<"){
+                    white.innerHTML = white.innerHTML.replace(text2[0], white_text[8]);
+                }else{
+                    white.innerHTML = white_text[8] + white.innerHTML;
+                }
+            }else{
+                board[i] = black_pieces[8];
+                board[i+40] = white_pieces[8];
+                if(text1.length > 0 & text1[0] != "<"){
+                    black.innerHTML = black.innerHTML.replace(text1[0], black_text[8]);
+                }else{
+                    black.innerHTML = black_text[8] + black.innerHTML;
+                }
+                if(text2.length > 0 & text2[0] != "<"){
+                    white.innerHTML = white.innerHTML.replace(text2[0], white_text[i-8]);
+                }else{
+                    white.innerHTML = white_text[i-8] + white.innerHTML;
+                }
+            }
+            black.style.cursor = "pointer";
+            white.style.cursor = "pointer";
+            black.addEventListener("click", show_valid_path);
+            white.addEventListener("click", show_valid_path);
+        }else{
+            let parent = document.getElementById(i);
+            let text = parent.innerHTML;
+            if(text.length > 0 & text[0] != "<"){
+                parent.innerHTML = parent.innerHTML.replace(text[0], "");
+            }
+            parent.style.cursor = "default";
+        }
     }
     document.getElementById("Rook_black").addEventListener("click", promotion);
     document.getElementById("Knight_black").addEventListener("click", promotion);
@@ -191,7 +207,7 @@ function get_rook_move(piece_pos){
                 }
                 legal.push(i);
             }
-            if((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55 & board[i] > -1)){
+            if(((board[i] > 55 & piece < 55) | (board[i] < 55 & piece > 55 & board[i] > -1)) & i%8 > pos){
                 legal.push(i);
             }
             for(i = piece_pos - 1; i%8 < pos; i -= 1){
@@ -305,14 +321,15 @@ function get_king_move(piece_pos){
 function get_pawn_move(piece_pos){
     let piece = board[piece_pos];
     let legal = [];
+    let pos = piece_pos%8;
     if(piece < 60){
         if(board[piece_pos + 8] == -1){
             legal.push(piece_pos + 8);
         }
-        if(board[piece_pos + 7] > 55){
+        if(board[piece_pos + 7] > 55 & (piece_pos + 7)%8 < pos){
             legal.push(piece_pos + 7);
         }
-        if(board[piece_pos + 9] > 55){
+        if(board[piece_pos + 9] > 55 & (piece_pos + 9)%8 > pos){
             legal.push(piece_pos + 9);
         }
         if(board[piece_pos + 16] == -1 & piece == 51 & board[piece_pos + 8] == -1){
@@ -330,10 +347,10 @@ function get_pawn_move(piece_pos){
         if(board[piece_pos - 8] == -1){
             legal.push(piece_pos - 8);
         }
-        if(board[piece_pos - 7] < 55 & board[piece_pos - 7] > 30){
+        if(board[piece_pos - 7] < 55 & board[piece_pos - 7] > 30 & (piece_pos - 7)%8 > pos){
             legal.push(piece_pos - 7);
         }
-        if(board[piece_pos - 9] < 55 & board[piece_pos - 9] > 30){
+        if(board[piece_pos - 9] < 55 & board[piece_pos - 9] > 30 & (piece_pos - 9)%8 < pos){
             legal.push(piece_pos - 9);
         }
         if(board[piece_pos - 16] == -1 & piece == 61 & board[piece_pos - 8] == -1){
@@ -735,15 +752,51 @@ function move_piece(event){
         king_pos[1] = position;
     }
     if(board[position] > 55){
-        let result = check(king_pos[0]);
-        if(result[0].length + result[1].length > 0){
-            let legal = find_legal(king_pos[0]);
-            if(legal.length == 0){
-                for(let i = 0; i < 64; i += 1){
-                    if(board[i] < 55 & i != 45 & i != 44){
-                        legal = find_legal(i);
+        let legal = find_legal(king_pos[0]);
+        if(legal.length == 0){
+            let result = check(king_pos[0], board[king_pos[0]]);
+            let flag = true;
+            for(let i = 0; i < 64; i += 1){
+                if(board[i] < 55 & i != 45 & i != 44){
+                    legal = find_legal(i);
+                    if(legal.length > 0){
+                        flag = false;
+                        break;
                     }
                 }
+            }
+            if(flag & result[1].length > 0){
+                document.getElementById("checkmate").innerHTML = "White Won by checkmate";
+                console.log("White won by checkmate");
+                remove_listners();
+            }else if(flag & result[1].length == 0){
+                document.getElementById("checkmate").innerHTML = "Stalemate :(";
+                console.log("Stalemate, unfortunate");
+                remove_listners();
+            }
+        }
+    }else{
+        let legal = find_legal(king_pos[1]);
+        if(legal.length == 0){
+            let result = check(king_pos[1], board[king_pos[1]]);
+            let flag = true;
+            for(let i = 0; i < 64; i += 1){
+                if(board[i] > 55 & i != 75 & i != 74){
+                    legal = find_legal(i);
+                    if(legal.length > 0){
+                        flag = false;
+                        break;
+                    }
+                }
+            }
+            if(flag & result[1].length > 0){
+                document.getElementById("checkmate").innerHTML = "Black Won by checkmate";
+                console.log("Black won by checkmate");
+                remove_listners();
+            }else if(flag & result[1].length == 0){
+                document.getElementById("checkmate").innerHTML = "Stalemate :(";
+                console.log("Stalemate, unfortunate");
+                remove_listners();
             }
         }
     }
@@ -751,6 +804,16 @@ function move_piece(event){
     let turn = control ? "Black Plays" : "White Plays";
     document.getElementById("turn").innerHTML = turn;
 }
+function remove_listners(){
+    for(let i = 0; i < 64; i += 1){
+        if(board[i] > -1){
+            let parent = document.getElementById(i);
+            parent.removeEventListener("click", show_valid_path);
+            parent.style.cursor = "default";
+        }
+    }
+}
+
 function remove_moves(){
     for(let i = 0; i < 64; i += 1){
         let parent = document.getElementById(i);
@@ -772,9 +835,10 @@ function remove_moves(){
 }
 let piece_info = { 39: "Black Rook", 40: "Black Rook", 41: "Black_Horse", 42: "Black_Bishop", 43: "Black_Queen", 44: "Black_King", 45: "Black_King", 51: "Black_Pawn", 52: "Black_Pawn", 53: "Black_Pawn",
 69: "White_Rook", 70: "White_Rook", 71: "White_Horse", 72: "White_Bishop", 73: "White_Queen", 74: "White_King", 75: "White_King", 61: "White_Pawn", 62: "White_Pawn", 63:"White_Pawn"};
-let board = restart();
-let king_pos = [4, 60]
+
+let king_pos = [4, 60];
 control = 0;
 document.getElementById("turn").innerHTML = "White Plays";
 last_clicked = -1;
+let board = restart();
 console.log(board);
